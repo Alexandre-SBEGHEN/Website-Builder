@@ -22,7 +22,13 @@ Je me suis demandé si je ne pouvais pas avoir un script qui ferait tout ça pou
 
 Ce projet m'a aussi permis de me refamiliariser avec le bash, que je n'avais pas touché depuis le début de ma première année.
 
-## Fonctionnalités
+## Quel est l'intérêt d'un tel outil ?
+
+Sur un gros projet, effectuer ces opérations manuellement sur chaque fichier concerné peut vite devenir long et pénible. Il faut en plus penser à dupliquer le site avant toute modification, pour ne pas écraser les fichiers sources sur lesquels on travaille. Ce script permet de faire tout cela en une seule commande.
+
+L'autre objectif était d'avoir un outil simple et portable, facilement installable, sans avoir à intégrer un framework de build complet uniquement pour cette fonctionnalité.
+
+## Étapes du build
 
 Le script automatise les étapes suivantes lors du build d'un site web :
 
@@ -49,11 +55,11 @@ npm install -g sass
 brew install sass/sass/sass
 ```
 
-À noter qu'il existe également des versions standalone trouvables sur la **[page des releases GitHub](https://github.com/sass/dart-sass/releases/)**.
+À noter qu'il existe également des versions standalone trouvables sur la **[page des releases GitHub](https://github.com/sass/dart-sass/releases/)**. Pour s'en servir, il suffit de remplacer la variable `$SASS_COMMAND` par le chemin **absolu** vers l'exécutable.
 
 ## Utilisation
 
-Le script est compatible **Linux** et **macOS** (nativement, via bash). Sous Windows, il peut être exécuté via WSL ou Git Bash.
+Le script est compatible avec **Linux** et **macOS** (nativement, via bash). Sous Windows, il peut être exécuté via WSL ou Git Bash.
 
 Une fois téléchargé, il suffit de l'exécuter avec :
 
