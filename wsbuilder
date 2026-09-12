@@ -42,7 +42,7 @@ print_app_usage() {
     echo "Usage: ${APP_NAME} [<options>...] [<index_directory>]"
     echo
     echo "<Options>"
-    printf "  %-20s : %s" "$OPTION_SASS_COMPILE"        "Compile your sass to CSS (requires Sass)"; echo
+    printf "  %-20s : %s" "$OPTION_SASS_COMPILE"        "Compile your sass to CSS (requires Dart Sass)"; echo
     printf "  %-20s : %s" "$OPTION_SASS_COMPRESS"       "Minify the compiled Sass"; echo
     printf "  %-20s : %s" "$OPTION_SASS_NO_SOURCE_MAP"  "Prevent Sass from creating source maps"; echo
     printf "  %-20s : %s" "$OPTION_CSS_MINIFY"          "Minify your CSS"; echo
