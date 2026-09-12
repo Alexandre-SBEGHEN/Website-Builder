@@ -55,7 +55,7 @@ npm install -g sass
 brew install sass/sass/sass
 ```
 
-À noter qu'il existe également des versions standalone trouvables sur la **[page des releases GitHub](https://github.com/sass/dart-sass/releases/)**. Pour s'en servir, il suffit de remplacer la variable `$SASS_COMMAND` par le chemin **absolu** vers l'exécutable.
+À noter qu'il existe également des versions standalone trouvables sur la **[page des releases GitHub](https://github.com/sass/dart-sass/releases/)**. Pour s'en servir, il suffit d'en télécharger une, puis de remplacer le contenu de la variable `$SASS_COMMAND` par le chemin **absolu** vers l'exécutable.
 
 ## Utilisation
 
