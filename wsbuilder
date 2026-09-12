@@ -24,8 +24,6 @@ readonly BYPASS_SASS_VERIFICATION=0 # Ignorer l'existence de Sass
 
 readonly BUILD_IGNORE=("$APP_NAME" "build" "README.md" "LICENSE" "*.sass") # Ignorer certains fichiers lors du build (Peut être agrandi)
 
-readonly MINIFY_QUOTE_IGNORE="\"" # Guillemet (simple ou double) utilisé durant la suppression des commentaires
-
 # 
 # --------------- Fonctions d'affichage ------------------------------------- #
 # 
