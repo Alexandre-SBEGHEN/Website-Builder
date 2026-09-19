@@ -6,12 +6,13 @@
     <img alt="Bash" src="https://img.shields.io/badge/Bash-4EAA25?logo=gnubash&logoColor=fff">
 </div>
 
-<!-- 
+
 <div align="center">
     <img alt="License" src="https://img.shields.io/github/license/Alexandre-SBEGHEN/Website-Builder">
     <img alt="Repo Size" src="https://img.shields.io/github/repo-size/Alexandre-SBEGHEN/Website-Builder">
+    <a href="https://www.codefactor.io/repository/github/alexandre-sbeghen/website-builder"><img src="https://www.codefactor.io/repository/github/alexandre-sbeghen/website-builder/badge" alt="CodeFactor" /></a>
 </div>
--->
+
 ---
 
 ## Contexte
