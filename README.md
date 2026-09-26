@@ -3,6 +3,7 @@
 <p align="center"><i>par Alexandre SBEGHEN</i></p>
 
 <div align="center">
+    <img alt="HTML" src="https://img.shields.io/badge/HTML-%23E34F26?style=flat&logo=html5&logoColor=white">
     <img alt="Bash" src="https://img.shields.io/badge/Bash-4EAA25?logo=gnubash&logoColor=fff">
 </div>
 
