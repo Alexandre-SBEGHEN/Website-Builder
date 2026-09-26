@@ -36,10 +36,11 @@ Le script automatise les étapes suivantes lors du build d'un site web :
 
 | Etape | Description |
 |-|-|
-| **Copie vers `build/`** | Copie l'ensemble du projet vers un dossier `build/`, dédié à la version prête pour la production |
+| **Copie vers `build/`** | Copie l'ensemble du projet vers un dossier `build/`, dédié à la version prête pour la production. |
 | **Suppression des fichiers inutiles** | Retire du dossier `build/` les fichiers masqués (`.gitignore`, `.env`, etc), ainsi que d'autres fichiers pouvant être ajoutés directement dans le script par les développeurs |
-| **Minification JS/CSS** | Minifie les fichiers JavaScript et CSS via un algorithme simple : suppression des commentaires, remplacement des espaces multiples par un seul (hors chaînes de caractères), et en supprimant les retours à la ligne |
-| **Compilation Sass** | Compile les fichiers `.scss` en CSS classique, avec quelques personnalisations disponibles (voir [pré-requis](#pré-requis)) |
+| **Autorisation possible de certains fichiers masqués** | Une whitelist permet la copie de certains fichiers masqués qui peuvent tout de même être nécessaire dans le build final, tels que le `.htaccess`. Cette liste peut être modifiée ou étendue. |
+| **Minification JS/CSS** | Minifie les fichiers JavaScript et CSS via un algorithme simple : suppression des commentaires, remplacement des espaces multiples par un seul (hors chaînes de caractères), et en supprimant les retours à la ligne. |
+| **Compilation Sass** | Compile les fichiers `.scss` en `.css` classique, avec quelques personnalisations disponibles (voir [pré-requis](#pré-requis)). |
 
 Le résultat est un dossier `build/` contenant une version propre et optimisée du site, prête à être déployée.
 
