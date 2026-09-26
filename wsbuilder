@@ -169,25 +169,40 @@ fi
 
 # ---------- Vidage / Création du dossier build ----------
 build_directory="${website_directory}/build"
-[[ -d "$build_directory" ]] && $(echo rm -rf "${build_directory}"/*) || $(mkdir "$build_directory")
+rm -rf "${build_directory:?}"
+mkdir -p "$build_directory"
 
 # ---------- Copie des fichiers ----------
-for f in "${website_directory}"/*; do
+for f in $(find "$website_directory" -mindepth 1 -maxdepth 1); do
     fname=$(basename "$f")
+    skip=0
+
+    # Ignorer les masqués
+    if [[ "$fname" == .* ]]; then
+        skip=1
+        # Ne pas skipper les masqués que l'on veut quand même copier
+        for hidden in "${BUILD_COPY_HIDDEN[@]}"; do
+            if [[ "$fname" == "$hidden" ]]; then
+                skip=0
+                break
+            fi
+        done
+    fi
 
     # Ne pas copier s'il est dans BUILD_IGNORE
-    skip=0
     for ignore in "${BUILD_IGNORE[@]}"; do
         if [[ "$fname" = "$ignore" ]]; then
             skip=1
             break
         fi
     done
-    (( skip == 1 )) && continue
 
+    (( skip == 1 )) && continue
     # Copier
     cp -r "$f" "$build_directory"/
 done
+
+exit 0
 
 # ---------- Sass, CSS, JS ----------
 for f in $(find "$build_directory"/*); do
