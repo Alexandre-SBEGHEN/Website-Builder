@@ -106,7 +106,7 @@ if (( argc == 0 )); then
 fi
 
 # ---------- Vérification de l'index ----------
-last_arg="${argv[@]: -1}"
+last_arg="${argv[*]: -1}"
 if (( $BYPASS_INDEX_VERIFICATION == 0 )); then
     # Le dernier argument est-il un répertoire ?
     if [[ ! -d "$last_arg" ]]; then
