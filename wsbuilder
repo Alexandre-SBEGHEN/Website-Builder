@@ -10,7 +10,7 @@
 # 
 
 readonly APP_NAME="$0"
-readonly APP_VERSION="1.0.0-SNAPSHOT" # Version du projet
+readonly APP_VERSION="1.0.0" # Version du projet
 readonly SASS_COMMAND="sass" # Commande pour exécuter Sass
 
 readonly OPTION_SASS_COMPILE="--sass-compile" # Compiler les fichier Sass (.scss)
