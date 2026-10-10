@@ -281,9 +281,7 @@ for f in $(find "$build_directory"/*); do
 done
 
 # Supprimer les Sass
-for scss in $(find "$build_directory" -name *.scss); do
-    rm -rf "$scss"
-done
+find "$build_directory" -type f -name "*.scss" -delete
 
 # ---------- Succès ----------
 print_info_build_success "$build_directory"
