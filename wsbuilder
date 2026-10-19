@@ -10,9 +10,10 @@
 # 
 
 readonly APP_NAME="$0"
-readonly APP_VERSION="1.0.0" # Version du projet
+readonly APP_VERSION="1.1.0" # Version du projet
 readonly SASS_COMMAND="sass" # Commande pour exécuter Sass
 
+readonly OPTION_BUILD_FORCE="--build-force" # Forcer le build
 readonly OPTION_SASS_COMPILE="--sass-compile" # Compiler les fichier Sass (.scss)
 readonly OPTION_SASS_COMPRESS="--sass-compress" # Minifier les Sass compilés
 readonly OPTION_SASS_NO_SOURCE_MAP="--sass-no-source-map" # Ne pas créer les source map de Sass
@@ -43,6 +44,7 @@ print_app_usage() {
     echo "Usage: ${APP_NAME} [<options>...] [<index_directory>]"
     echo
     echo "<Options>"
+    printf "  %-20s : %s" "$OPTION_BUILD_FORCE"         "Force build even if index is not found (risky)"; echo
     printf "  %-20s : %s" "$OPTION_SASS_COMPILE"        "Compile your sass to CSS (requires Dart Sass)"; echo
     printf "  %-20s : %s" "$OPTION_SASS_COMPRESS"       "Minify the compiled Sass"; echo
     printf "  %-20s : %s" "$OPTION_SASS_NO_SOURCE_MAP"  "Prevent Sass from creating source maps"; echo
@@ -105,27 +107,8 @@ if (( argc == 0 )); then
     exit 0
 fi
 
-# ---------- Vérification de l'index ----------
-last_arg="${argv[*]: -1}"
-if (( $BYPASS_INDEX_VERIFICATION == 0 )); then
-    # Le dernier argument est-il un répertoire ?
-    if [[ ! -d "$last_arg" ]]; then
-        print_error_header
-        print_error_last_arg_not_repertory
-        echo
-        exit 1
-    fi
-    # Un index existe-t-il dans le répertoire ?
-    if [[ ! -f "${last_arg}/index.html" && ! -f "${last_arg}/index.php" ]]; then
-        print_error_header
-        print_error_index_not_found "$last_arg"
-        echo
-        exit 1
-    fi
-fi
-website_directory="$last_arg"
-
 # ---------- Options ----------
+option_build_force=0
 option_sass_compile=0
 option_sass_compress=0
 option_sass_no_source_map=0
@@ -133,7 +116,10 @@ option_css_minify=0
 option_js_minify=0
 
 for option in "${argv[@]:0:$((argc-1))}"; do # Tous les arguments SAUF le dernier
-    if [[ "$option" = "$OPTION_SASS_COMPILE" ]]; then
+    if [[ $option = "$OPTION_BUILD_FORCE" ]]; then
+        option_build_force=1
+        continue
+    elif [[ "$option" = "$OPTION_SASS_COMPILE" ]]; then
         option_sass_compile=1
         continue
     elif [[ "$option" = "$OPTION_SASS_COMPRESS" ]]; then
@@ -156,6 +142,26 @@ for option in "${argv[@]:0:$((argc-1))}"; do # Tous les arguments SAUF le dernie
     echo
     exit 1
 done
+
+# ---------- Vérification de l'index ----------
+last_arg="${argv[*]: -1}"
+if (( $BYPASS_INDEX_VERIFICATION == 0 && option_build_force == 0 )); then
+    # Le dernier argument est-il un répertoire ?
+    if [[ ! -d "$last_arg" ]]; then
+        print_error_header
+        print_error_last_arg_not_repertory
+        echo
+        exit 1
+    fi
+    # Un index existe-t-il dans le répertoire ?
+    if [[ ! -f "${last_arg}/index.html" && ! -f "${last_arg}/index.php" ]]; then
+        print_error_header
+        print_error_index_not_found "$last_arg"
+        echo
+        exit 1
+    fi
+fi
+website_directory="$last_arg"
 
 # ---------- Vérification de Sass (si actif) ----------
 if (( $option_sass_compile == 1 && $BYPASS_SASS_VERIFICATION == 0 )) \
