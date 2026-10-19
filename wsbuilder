@@ -5,86 +5,81 @@
 #                         par Alexandre SBEGHEN, 2026                         #
 # --------------------------------------------------------------------------- #
 
-# 
+#
 # --------------- Constantes ------------------------------------------------ #
-# 
+#
 
 readonly APP_NAME="$0"
-readonly APP_VERSION="1.1.0" # Version du projet
-readonly SASS_COMMAND="sass" # Commande pour exécuter Sass
+readonly APP_VERSION="1.1.0"
 
-readonly OPTION_BUILD_FORCE="--build-force" # Forcer le build
-readonly OPTION_SASS_COMPILE="--sass-compile" # Compiler les fichier Sass (.scss)
-readonly OPTION_SASS_COMPRESS="--sass-compress" # Minifier les Sass compilés
-readonly OPTION_SASS_NO_SOURCE_MAP="--sass-no-source-map" # Ne pas créer les source map de Sass
-readonly OPTION_CSS_MINIFY="--css-minify" # Minifier les styles CSS
-readonly OPTION_JS_MINIFY="--js-minify" # Minifier les scripts JS
+readonly SASS_COMMAND="sass"
 
-readonly BYPASS_INDEX_VERIFICATION=0 # Ignorer la vérification de l'index
-readonly BYPASS_SASS_VERIFICATION=0 # Ignorer l'existence de Sass
+readonly BYPASS_INDEX_VERIFICATION=0
+readonly BYPASS_SASS_VERIFICATION=0
 
-readonly BUILD_IGNORE=("$(basename "$APP_NAME")" "build" "README.md" "LICENSE") # Ignorer certains fichiers lors du build (Peut être agrandi)
-readonly BUILD_COPY_HIDDEN=(".htaccess") # Fichiers masqués à copier quand-même
+readonly OPTION_BUILD_FORCE="--build-force"
+readonly OPTION_SASS_COMPILE="--sass-compile"
+readonly OPTION_SASS_COMPRESS="--sass-compress"
+readonly OPTION_SASS_NO_MAP="--sass-no-source-map"
+readonly OPTION_CSS_MINIFY="--css-minify"
+readonly OPTION_JS_MINIFY="--js-minify"
 
-# 
+readonly BUILD_IGNORE=("$(basename "$APP_NAME")" ".git" ".gitignore" "README.md" "LICENSE" ".idea" ".env.model")
+
+#
 # --------------- Fonctions d'affichage ------------------------------------- #
-# 
+#
 
 # Afficher le header de l'application
 # i.e : Nom, auteur, version, etc
 print_app_header() {
-    echo "Website Builder, Alexandre SBEGHEN, 2026"
-    echo "Version $APP_VERSION"
-    echo "GitHub: https://github.com/Alexandre-SBEGHEN"
-    echo "Repo: https://github.com/Alexandre-SBEGHEN/Website-Builder"
+ echo "Website Builder, Alexandre SBEGHEN, 2026"
+ echo "Version ${APP_VERSION}"
+ echo "GitHub: https://github.com/Alexandre-SBEGHEN"
+ echo "Repo: https://github.com/Alexandre-SBEGHEN/Website-Builder"
 }
 
 # Afficher le guide d'utilisation de l'application
 print_app_usage() {
-    echo "Usage: ${APP_NAME} [<options>...] [<index_directory>]"
-    echo
-    echo "<Options>"
-    printf "  %-20s : %s" "$OPTION_BUILD_FORCE"         "Force build even if index is not found (risky)"; echo
-    printf "  %-20s : %s" "$OPTION_SASS_COMPILE"        "Compile your sass to CSS (requires Dart Sass)"; echo
-    printf "  %-20s : %s" "$OPTION_SASS_COMPRESS"       "Minify the compiled Sass"; echo
-    printf "  %-20s : %s" "$OPTION_SASS_NO_SOURCE_MAP"  "Prevent Sass from creating source maps"; echo
-    printf "  %-20s : %s" "$OPTION_CSS_MINIFY"          "Minify your CSS"; echo
-    printf "  %-20s : %s" "$OPTION_JS_MINIFY"           "Minify your JavaScript"; echo
+ echo "Usage: ${APP_NAME} [<options>...] <index_directory>"
+ echo
+ echo "<Options>"
+ printf "  %-20s : %s" "$OPTION_BUILD_FORCE"               "Force build even when index not found (risky)"; echo
+ printf "  %-20s : %s" "$OPTION_SASS_COMPILE"               "Compile your sass to CSS (requires Dart Sass)"; echo
+ printf "  %-20s : %s" "$OPTION_SASS_COMPRESS"  "Minify the compiled Sass"; echo
+ printf "  %-20s : %s" "$OPTION_SASS_NO_MAP"                "Prevent Sass from creating source maps"; echo
+ printf "  %-20s : %s" "$OPTION_CSS_MINIFY"                 "Minify your CSS"; echo
+ printf "  %-20s : %s" "$OPTION_JS_MINIFY"                  "Minify your JavaScript"; echo
 }
 
 # Affiche le header d'un message d'erreur
 print_error_header() {
-    echo "Command line error"
+ echo "Command line error" >&2
 }
 
-# Affiche une ERREUR
-# -> le dernier argument n'est PAS un répertoire
-print_error_last_arg_not_repertory() {
-    echo "Last argument must be the index directory"
+# Affiche une ERREUR -> le dernier argument n'est PAS un répertoire
+print_error_last_arg_not_index_repertory() {
+ echo "Last argument must be the index directory" >&2
 }
 
-# Affiche une ERREUR
-# -> index du site (php/html) non trouvé
-print_error_index_not_found() {
-    echo "HTML or PHP index not found at '${1}'"
-}
-
-# Affiche une ERREUR
-# -> Sass n'est pas installé
-print_error_sass_not_found() {
-    echo "Sass could not be found"
-}
-
-# Affiche une ERREUR
-# -> Option inconnue
+# Affiche une ERREUR -> Option inconnue
 print_error_unknown_command() {
-    echo "Unknown command: ${1}"
+  echo "Unknown command: ${1}" >&2
 }
 
-# Affiche une INFO
-# -> Le build a été effectué avec succès
+# Affiche une ERREUR -> Sass n'est pas installé
+print_error_sass_not_found() {
+    echo "Sass could not be found" >&2
+}
+
+# Affiche une ERREUR -> index du site (php/html) non trouvé
+print_error_index_not_found() {
+ echo "HTML or PHP index not found at '${1}'" >&2
+}
+
+# Affiche une INFO -> Le build a été effectué avec succès
 print_info_build_success() {
-    echo "Website compiled successfully to '${1}'"
+  echo "Website compiled successfully to '${1}'"
 }
 
 #
@@ -93,7 +88,7 @@ print_info_build_success() {
 
 # Arguments
 argc=$#
-argv=("$@")
+last_arg="${!#}"
 
 # Afficher le header
 echo
@@ -102,69 +97,48 @@ echo
 
 # Afficher le guide d'utilisation (si 0 argument)
 if (( argc == 0 )); then
-    print_app_usage
-    echo
-    exit 0
+ print_app_usage
+ echo
+ exit 0
 fi
 
 # ---------- Options ----------
 option_build_force=0
 option_sass_compile=0
 option_sass_compress=0
-option_sass_no_source_map=0
+option_sass_no_map=0
 option_css_minify=0
 option_js_minify=0
+for o in "${@:1:$#-1}"; do # Tous les arguments SAUF le dernier
+  if [[ "$o" == "$OPTION_BUILD_FORCE" ]]; then
+    option_build_force=1
+    continue
+  elif [[ "$o" == "$OPTION_SASS_COMPILE" ]]; then
+    option_sass_compile=1
+    continue
+  elif [[ "$o" == "$OPTION_SASS_COMPRESS" ]]; then
+    option_sass_compress=1
+    continue
+  elif [[ "$o" == "$OPTION_SASS_NO_MAP" ]]; then
+      option_sass_no_map=1
+      continue
+  elif [[ "$o" == "$OPTION_CSS_MINIFY" ]]; then
+    option_css_minify=1
+    continue
+  elif [[ "$o" == "$OPTION_JS_MINIFY" ]]; then
+    option_js_minify=1
+    continue
+  fi
 
-for option in "${argv[@]:0:$((argc-1))}"; do # Tous les arguments SAUF le dernier
-    if [[ $option = "$OPTION_BUILD_FORCE" ]]; then
-        option_build_force=1
-        continue
-    elif [[ "$option" = "$OPTION_SASS_COMPILE" ]]; then
-        option_sass_compile=1
-        continue
-    elif [[ "$option" = "$OPTION_SASS_COMPRESS" ]]; then
-        option_sass_compress=1
-        continue
-    elif [[ "$option" = "$OPTION_SASS_NO_SOURCE_MAP" ]]; then
-        option_sass_no_source_map=1
-        continue
-    elif [[ "$option" = "$OPTION_CSS_MINIFY" ]]; then
-        option_css_minify=1
-        continue
-    elif [[ "$option" = "$OPTION_JS_MINIFY" ]]; then
-        option_js_minify=1
-        continue
-    fi
-        
-    # Commande inconnue
-    print_error_header
-    print_error_unknown_command "$option"
-    echo
-    exit 1
+  # Commande inconnue
+  print_error_header
+  print_error_unknown_command "$o"
+  echo
+  exit 1
 done
 
-# ---------- Vérification de l'index ----------
-last_arg="${argv[*]: -1}"
-if (( $BYPASS_INDEX_VERIFICATION == 0 && option_build_force == 0 )); then
-    # Le dernier argument est-il un répertoire ?
-    if [[ ! -d "$last_arg" ]]; then
-        print_error_header
-        print_error_last_arg_not_repertory
-        echo
-        exit 1
-    fi
-    # Un index existe-t-il dans le répertoire ?
-    if [[ ! -f "${last_arg}/index.html" && ! -f "${last_arg}/index.php" ]]; then
-        print_error_header
-        print_error_index_not_found "$last_arg"
-        echo
-        exit 1
-    fi
-fi
-website_directory="$last_arg"
-
 # ---------- Vérification de Sass (si actif) ----------
-if (( $option_sass_compile == 1 && $BYPASS_SASS_VERIFICATION == 0 )) \
+if (( BYPASS_SASS_VERIFICATION == 0 && option_sass_compile == 1)) \
     && ! command -v "$SASS_COMMAND" >/dev/null 2>&1; then
 
     print_error_header
@@ -173,122 +147,113 @@ if (( $option_sass_compile == 1 && $BYPASS_SASS_VERIFICATION == 0 )) \
     exit 1
 fi
 
+# ---------- Vérification de l'index ----------
+if (( BYPASS_INDEX_VERIFICATION == 0 && option_build_force == 0 )); then
+ # Le dernier argument est-il un répertoire ?
+ if [[ ! -d "$last_arg" ]]; then
+   print_error_header
+   print_error_last_arg_not_index_repertory
+   echo
+   exit 1
+ fi
+
+ # Un index existe-t-il dans le répertoire ?
+ if [[ ! -f "${last_arg}/index.html" && ! -f "${last_arg}/index.php" ]]; then
+   print_error_header
+   print_error_index_not_found "$last_arg"
+   echo
+   exit 1
+ fi
+fi
+website_directory="$last_arg"
+
 # ---------- Vidage / Création du dossier build ----------
 build_directory="${website_directory}/build"
-rm -rf "${build_directory:?}"
-mkdir -p "$build_directory"
+mkdir -p "$build_directory" && find "$build_directory" -delete 2>/dev/null && cp -r "$website_directory" "$build_directory"
 
-# ---------- Copie des fichiers ----------
-for f in $(find "$website_directory" -mindepth 1 -maxdepth 1); do
-    fname=$(basename "$f")
-    skip=0
+# Suppression des fichiers à ignorer
+(( ${#BUILD_IGNORE[@]} > 0)) && rm -rf "${BUILD_IGNORE[@]/#/$build_directory/}"
 
-    # Ignorer les masqués
-    if [[ "$fname" == .* ]]; then
-        skip=1
-        # Ne pas skipper les masqués que l'on veut quand même copier
-        for hidden in "${BUILD_COPY_HIDDEN[@]}"; do
-            if [[ "$fname" == "$hidden" ]]; then
-                skip=0
-                break
-            fi
-        done
-    fi
-
-    # Ne pas copier s'il est dans BUILD_IGNORE
-    for ignore in "${BUILD_IGNORE[@]}"; do
-        if [[ "$fname" = "$ignore" ]]; then
-            skip=1
-            break
-        fi
-    done
-
-    (( skip == 1 )) && continue
-    # Copier
-    cp -r "$f" "$build_directory"/
-done
-
-# ---------- Sass, CSS, JS ----------
-for f in $(find "$build_directory"/*); do
-    # Ignorer si ce n'est pas un fichier
-    if [[ ! -f "$f" ]]; then
-        continue
-    fi
-
+# ---------- CSS, JS ----------
+if (( option_css_minify == 1 || option_js_minify == 1 )); then
+  find build -type f \( -name "*.css" -o -name "*.js" \) -print0 | while IFS= read -r -d '' f; do
     extension="${f##*.}"
+    if [[ ($option_js_minify -eq 1 && "$extension" = "js") || \
+      ($option_css_minify -eq 1 && "$extension" = "css") ]]; then
 
-    # Minifier les CSS / JS (=> retirer espaces/sauts de lignes + commentaires)
-    if [[ ($option_js_minify -eq 1 && "$extension" = "js") || ($option_css_minify -eq 1 && "$extension" = "css") ]]; then
-        # Commentaires
-        content=$(cat "$f")
-        len="${#content}"
+      # Commentaires
+      content=$(cat "$f")
+      len="${#content}"
 
-        state="CODE"
-        output=""
-        # Algorithme de suppression des commentaires
-        # (pseudo-code issu de Claude, traduit en bash par moi)
-        for (( i=0; i<$len; ++i )); do
-            c="${content:$i:1}"
-            next="${content:((i+1)):1}"
-            (( i == len-1 )) && next="EOF"
+      state="CODE"
+      output=""
+      # Algorithme de suppression des commentaires
+      # (pseudo-code issu de Claude, traduit en bash par moi)
+      for (( i=0; i<len; ++i )); do
+          c="${content:$i:1}"
+          next="${content:((i+1)):1}"
+          (( i == len-1 )) && next="EOF"
 
-            if [[ "$state" = "CODE" ]]; then
-                if [[ "$c" = "\"" || "$c" = "'" || "$c" = "\`" ]]; then
-                    state="STRING"
-                    delimiter="$c"
-                    output+="$c"
-                elif [[ "$c" = "/" && "$next" = "/" ]]; then
-                    state="COMMENT_LINE"
-                    ((i+=1))
-                elif [[ "$c" = "/" && "$next" = "*" ]]; then
-                    state="COMMENT_BLOCK"
-                    ((i+=1))
-                elif [[ "$c" = " " && "$next" = " " ]]; then
-                    ((i+=1))
-                else
-                    output+="$c"
-                fi
-            elif [[ "$state" = "STRING" ]]; then
-                output+="$c"
-                if [[ "$c" = $'\\' ]]; then
-                    output+="$next"
-                    ((i+=1))
-                elif [[ "$c" = "$delimiter" ]]; then
-                    state="CODE"
-                fi
-            elif [[ "$state" = "COMMENT_LINE" ]]; then
-                if [[ "$c" = $'\n' ]]; then
-                    state="CODE"
-                    output+="$c"
-                fi
-            elif [[ "$state" = "COMMENT_BLOCK" ]]; then
-                if [[ "$c" = "*" && "$next" = "/" ]]; then
-                    state="CODE"
-                    ((i+=1))
-                fi
-            fi
+          if [[ "$state" = "CODE" ]]; then
+              if [[ "$c" = "\"" || "$c" = "'" || "$c" = "\`" ]]; then
+                  state="STRING"
+                  delimiter="$c"
+                  output+="$c"
+              elif [[ "$c" = "/" && "$next" = "/" ]]; then
+                  state="COMMENT_LINE"
+                  ((i+=1))
+              elif [[ "$c" = "/" && "$next" = "*" ]]; then
+                  state="COMMENT_BLOCK"
+                  ((i+=1))
+              elif [[ "$c" = " " && "$next" = " " ]]; then
+                  ((i+=1))
+              else
+                  output+="$c"
+              fi
+          elif [[ "$state" = "STRING" ]]; then
+              output+="$c"
+              if [[ "$c" = '\\' ]]; then
+                  output+="$next"
+                  ((i+=1))
+              elif [[ "$c" = "$delimiter" ]]; then
+                  state="CODE"
+              fi
+          elif [[ "$state" = "COMMENT_LINE" ]]; then
+              if [[ "$c" = $'\n' ]]; then
+                  state="CODE"
+                  output+="$c"
+              fi
+          elif [[ "$state" = "COMMENT_BLOCK" ]]; then
+              if [[ "$c" = "*" && "$next" = "/" ]]; then
+                  state="CODE"
+                  ((i+=1))
+              fi
+          fi
 
-            # output+="$c"
-        done
+          # output+="$c"
+      done
 
-        # Enregistrer sans retours à la ligne
-        echo "$output" | tr '\t' ' ' | tr -d '\r\n' > "$f"
-
-        continue
+      # Enregistrer sans retours à la ligne
+      echo "$output" | tr '\t' ' ' | tr -d '\r\n' > "$f"
     fi
+  done
+fi
 
-    # Compiler les sass
-    if [[ "$extension" = "scss" ]]; then
-        (( $option_sass_compile )) && "$SASS_COMMAND" \
-            $((( $option_sass_compress )) && echo "--style=compressed") \
-            $((( $option_sass_no_source_map )) && echo "--no-source-map") \
-            "${f}" "${f%%.*}.css"
-    fi
-done
+# ---------- Sass ----------
+if (( option_sass_compile == 1 )); then
+  #for f in $(find "$build_directory" -type f -name "*.scss"); do
+  find "$build_directory" -type f -name "*.scss" -print0 | while IFS= read -r -d '' f; do
+    [[ $(basename $f) != _*.scss ]] && "$SASS_COMMAND" \
+      $( (( option_sass_compress )) && echo "--style=compressed") \
+      $( (( option_sass_no_map )) && echo "--no-source-map") \
+      "$f" \
+      "${f%.*}.css"
+  done
+fi
 
-# Supprimer les Sass
 find "$build_directory" -type f -name "*.scss" -delete
 
 # ---------- Succès ----------
 print_info_build_success "$build_directory"
 echo
+exit 0
